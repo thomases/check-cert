@@ -54,8 +54,11 @@ func checkCert(host string) (int, error) {
 
 	if now.AddDate(0, 0, wlimit).After(cert.NotAfter) {
 		exp := int(cert.NotAfter.Sub(now).Hours() / 24)
-		if exp < climit {
-			fmt.Printf("ALERT! Certificate expires in %d days, on %s\n", exp, cert.NotAfter.String())
+		if exp <= 0 {
+			fmt.Println("ALERT! Certificate is expired!")
+			return CERT_EXPIRED, nil
+		} else if exp < climit {
+			fmt.Printf("CRITICAL! Certificate expires in %d days, on %s\n", exp, cert.NotAfter.String())
 			return CERT_CRIT, nil
 		} else {
 			fmt.Printf("WARNING! Certificate expires in %d days, on %s\n", exp, cert.NotAfter.String())
