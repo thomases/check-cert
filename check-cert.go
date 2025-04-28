@@ -4,7 +4,16 @@ import (
 	"crypto/tls"
 	"flag"
 	"fmt"
+	"os"
 	"time"
+)
+
+const (
+	CERT_OK      = iota // cert is within thresholds
+	CERT_WARN           // cert will expire within number of days set by warning limit
+	CERT_CRIT           // cert will exipre within number of days set by criticla limit
+	CERT_EXPIRED        // cert is expired
+	ERROR
 )
 
 var hostname string
@@ -15,7 +24,9 @@ func main() {
 
 	flag.Parse()
 
-	checkCert(hostname)
+	status, _ := checkCert(hostname)
+
+	os.Exit(status)
 }
 
 func configureFlags() {
@@ -29,14 +40,14 @@ func configureFlags() {
 	flag.IntVar(&wlimit, "w", defaultWlimit, "threshold for warning message")
 }
 
-func checkCert(host string) {
+func checkCert(host string) (int, error) {
 
 	now := time.Now()
 
 	conn, err := tls.Dial("tcp", host+":443", nil)
 	if err != nil {
 		fmt.Println(err)
-		return
+		return ERROR, err
 	}
 
 	cert := conn.ConnectionState().PeerCertificates[0]
@@ -45,12 +56,13 @@ func checkCert(host string) {
 		exp := int(cert.NotAfter.Sub(now).Hours() / 24)
 		if exp < climit {
 			fmt.Printf("ALERT! Certificate expires in %d days, on %s\n", exp, cert.NotAfter.String())
+			return CERT_CRIT, nil
 		} else {
 			fmt.Printf("WARNING! Certificate expires in %d days, on %s\n", exp, cert.NotAfter.String())
+			return CERT_WARN, nil
 		}
-		return
 	}
 	fmt.Printf("Certificate for %s is OK, will expire on %s\n", host, cert.NotAfter.String())
-	return
+	return CERT_OK, nil
 
 }
