@@ -2,14 +2,26 @@ package main
 
 import (
 	"crypto/tls"
+	"flag"
 	"fmt"
-	"os"
 	"time"
 )
 
+var hostname string
+
 func main() {
-	hostname := os.Args[1]
+	configureFlags()
+
+	flag.Parse()
+
 	checkCert(hostname)
+}
+
+func configureFlags() {
+	const (
+		defaultHostname = "example.com"
+	)
+	flag.StringVar(&hostname, "H", "example.com", "hostname to check certificate of")
 }
 
 func checkCert(host string) {
