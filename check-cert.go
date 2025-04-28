@@ -8,6 +8,7 @@ import (
 )
 
 var hostname string
+var climit, wlimit int
 
 func main() {
 	configureFlags()
@@ -20,8 +21,12 @@ func main() {
 func configureFlags() {
 	const (
 		defaultHostname = "example.com"
+		defaultClimit   = 5
+		defaultWlimit   = 30
 	)
 	flag.StringVar(&hostname, "H", "example.com", "hostname to check certificate of")
+	flag.IntVar(&climit, "c", defaultClimit, "threshold for critical message")
+	flag.IntVar(&wlimit, "w", defaultWlimit, "threshold for warning message")
 }
 
 func checkCert(host string) {
@@ -36,9 +41,9 @@ func checkCert(host string) {
 
 	cert := conn.ConnectionState().PeerCertificates[0]
 
-	if now.AddDate(0, 0, 30).After(cert.NotAfter) {
-		exp := int64(cert.NotAfter.Sub(now).Hours() / 24)
-		if exp < 5 {
+	if now.AddDate(0, 0, wlimit).After(cert.NotAfter) {
+		exp := int(cert.NotAfter.Sub(now).Hours() / 24)
+		if exp < climit {
 			fmt.Printf("ALERT! Certificate expires in %d on %s\n", exp, cert.NotAfter.String())
 		} else {
 			fmt.Printf("WARNING! Certificate expires in %d on %s\n", exp, cert.NotAfter.String())
