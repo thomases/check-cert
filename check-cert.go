@@ -5,6 +5,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"strconv"
 	"time"
 )
 
@@ -17,7 +18,7 @@ const (
 )
 
 var hostname string
-var climit, wlimit int
+var climit, wlimit, port int
 
 func main() {
 	configureFlags()
@@ -34,17 +35,19 @@ func configureFlags() {
 		defaultHostname = "example.com"
 		defaultClimit   = 5
 		defaultWlimit   = 30
+		defaultPort     = 443
 	)
 	flag.StringVar(&hostname, "H", "example.com", "hostname to check certificate of")
 	flag.IntVar(&climit, "c", defaultClimit, "threshold for critical message")
 	flag.IntVar(&wlimit, "w", defaultWlimit, "threshold for warning message")
+	flag.IntVar(&port, "p", defaultPort, "port to connect to")
 }
 
 func checkCert(host string) (int, error) {
 
 	now := time.Now()
 
-	conn, err := tls.Dial("tcp", host+":443", nil)
+	conn, err := tls.Dial("tcp", host+":"+strconv.Itoa(port), nil)
 	if err != nil {
 		fmt.Println(err)
 		return ERROR, err
