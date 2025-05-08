@@ -9,8 +9,10 @@ import (
 	"time"
 )
 
+type CertStatus int
+
 const (
-	CERT_OK      = iota // cert is within thresholds
+	CERT_OK CertStatus  = iota // cert is within thresholds
 	CERT_WARN           // cert will expire within number of days set by warning limit
 	CERT_CRIT           // cert will exipre within number of days set by criticla limit
 	CERT_EXPIRED        // cert is expired
@@ -43,7 +45,7 @@ func configureFlags() {
 	flag.IntVar(&port, "p", defaultPort, "port to connect to")
 }
 
-func checkCert(host string) (int, error) {
+func checkCert(host string) (CertStatus, error) {
 
 	now := time.Now()
 
