@@ -12,10 +12,10 @@ import (
 type CertStatus int
 
 const (
-	CERT_OK CertStatus  = iota // cert is within thresholds
-	CERT_WARN           // cert will expire within number of days set by warning limit
-	CERT_CRIT           // cert will exipre within number of days set by criticla limit
-	CERT_EXPIRED        // cert is expired
+	CERT_OK      CertStatus = iota // cert is within thresholds
+	CERT_WARN                      // cert will expire within number of days set by warning limit
+	CERT_CRIT                      // cert will exipre within number of days set by criticla limit
+	CERT_EXPIRED                   // cert is expired
 	ERROR
 )
 
@@ -29,7 +29,7 @@ func main() {
 
 	status, _ := checkCert(hostname)
 
-	os.Exit(status)
+	os.Exit(int(status))
 }
 
 func configureFlags() {
