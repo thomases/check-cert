@@ -16,10 +16,11 @@ const (
 	CERT_WARN                      // cert will expire within number of days set by warning limit
 	CERT_CRIT                      // cert will exipre within number of days set by criticla limit
 	CERT_EXPIRED                   // cert is expired
-	ERROR
+	ERROR                          // signal an error
 )
 
 var hostname string
+
 var climit, wlimit, port int
 
 func main() {
@@ -32,6 +33,7 @@ func main() {
 	os.Exit(int(status))
 }
 
+// configure flags from CLI
 func configureFlags() {
 	const (
 		defaultHostname = "example.com"
@@ -45,6 +47,7 @@ func configureFlags() {
 	flag.IntVar(&port, "p", defaultPort, "port to connect to")
 }
 
+// check certificate validity and return the status
 func checkCert(host string) (CertStatus, error) {
 
 	now := time.Now()
